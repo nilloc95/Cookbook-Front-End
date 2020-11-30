@@ -11,6 +11,9 @@ import MenuIcon from '@material-ui/icons/Menu';
 import SearchIcon from '@material-ui/icons/Search';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import MoreIcon from '@material-ui/icons/MoreVert';
+import { Link } from 'react-router-dom';
+import HomeIcon from '@material-ui/icons/Home';
+import { auth } from './firebase/firebase.utils';
 
 const useStyles = makeStyles((theme) => ({
     root:{
@@ -19,8 +22,14 @@ const useStyles = makeStyles((theme) => ({
   grow: {
     flexGrow: 1,
   },
-  menuButton: {
-    marginRight: theme.spacing(2),
+  link: {
+    textDecoration: 'none',
+    color: 'inherit'
+  },
+  link2: {
+    textDecoration: 'none',
+    color: 'inherit',
+    marginRight: '8px'
   },
   title: {
     display: 'none',
@@ -62,7 +71,7 @@ const useStyles = makeStyles((theme) => ({
     transition: theme.transitions.create('width'),
     width: '100%',
     [theme.breakpoints.up('md')]: {
-      width: '20ch',
+      width: '50ch',
     },
   },
   sectionDesktop: {
@@ -79,7 +88,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function Header({handleSearchChange}) {
+export default function Header({handleSearchChange, currentUser}) {
   const classes = useStyles();
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
@@ -100,9 +109,6 @@ export default function Header({handleSearchChange}) {
     handleMobileMenuClose();
   };
 
-  const handleMobileMenuOpen = (event) => {
-    setMobileMoreAnchorEl(event.currentTarget);
-  };
 
   const menuId = 'primary-search-account-menu';
   const renderMenu = (
@@ -115,10 +121,16 @@ export default function Header({handleSearchChange}) {
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
+      {
+        currentUser ?
+        <MenuItem onClick={() => auth.signOut()}>Log Out</MenuItem>
+        :
+        <Link className={classes.link} to ='/login'><MenuItem onClick={handleMenuClose}>Sign In</MenuItem></Link>
+      }
       <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
       <MenuItem onClick={handleMenuClose}>My account</MenuItem>
     </Menu>
-  );
+  ); 
 
   const mobileMenuId = 'primary-search-account-menu-mobile';
   const renderMobileMenu = (
@@ -147,7 +159,7 @@ export default function Header({handleSearchChange}) {
 
   return (
     <div className={classes.grow}>
-      <AppBar position="static">
+      <AppBar position="fixed">
         <Toolbar className={classes.root}>
           <IconButton
             edge="start"
@@ -157,9 +169,18 @@ export default function Header({handleSearchChange}) {
           >
             <MenuIcon />
           </IconButton>
-          <Typography className={classes.title} variant="h6" noWrap>
-            MyCookBook
-          </Typography>
+          <Link className={classes.link2} to={'/'}>
+              <IconButton 
+                aria-label="show more"
+                color="inherit">
+                <HomeIcon/>
+              </IconButton>
+            </Link>
+          <Link className={classes.link} to ='/' >
+            <Typography className={classes.title} variant="h6" noWrap>
+              MyCookBook
+            </Typography>
+          </Link>
           <div className={classes.search}>
             <div className={classes.searchIcon}>
               <SearchIcon />
@@ -192,7 +213,7 @@ export default function Header({handleSearchChange}) {
               aria-label="show more"
               aria-controls={mobileMenuId}
               aria-haspopup="true"
-              onClick={handleMobileMenuOpen}
+              onClick={handleProfileMenuOpen}
               color="inherit"
             >
               <MoreIcon />
